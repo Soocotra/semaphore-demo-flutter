@@ -42,10 +42,10 @@ blocks:
       jobs:
         - name: Format
           commands:
-            - flutter format --set-exit-if-changed .
+            - dart format --set-exit-if-changed .
         - name: Analyze
           commands:
-            - flutter analyze .
+            - dart analyze .
       agent:
         machine:
           type: e1-standard-2
