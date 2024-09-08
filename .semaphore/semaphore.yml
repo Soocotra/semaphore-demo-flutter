@@ -28,7 +28,7 @@ blocks:
           os_image: ubuntu2004
         containers:
           - name: main
-            image: 'registry.semaphoreci.com/android:34:flutter'
+            image: 'semaphoreci/android:34-flutter'
   - name: Lint
     task:
       prologue:
