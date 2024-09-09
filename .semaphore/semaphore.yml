@@ -2,8 +2,11 @@ version: v1.0
 name: Main
 agent:
   machine:
-    type: a1-standard-4
-    os_image: macos-xcode12
+    type: e1-standard-2
+    os_image: ubuntu2004
+  containers:
+    - name: main
+      image: 'semaphoreci/android:34-flutter'
 fail_fast:
   stop:
     when: 'true'
@@ -22,6 +25,13 @@ blocks:
           - checkout
           - 'cache restore flutter-packages-$SEMAPHORE_GIT_BRANCH-$(checksum pubspec.yaml),flutter-packages-$(checksum pubspec.yaml),flutter-packages'
           - flutter pub get
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+        containers:
+          - name: main
+            image: 'semaphoreci/android:34-flutter'
   - name: Lint
     task:
       prologue:
@@ -32,10 +42,17 @@ blocks:
       jobs:
         - name: Format
           commands:
-            - flutter format --set-exit-if-changed .
+            - dart format --set-exit-if-changed .
         - name: Analyze
           commands:
-            - flutter analyze .
+            - dart analyze .
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+        containers:
+          - name: main
+            image: 'semaphoreci/android:34-flutter'
   - name: Unit and widget tests
     task:
       prologue:
@@ -47,6 +64,13 @@ blocks:
         - name: Test
           commands:
             - flutter test test
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+        containers:
+          - name: main
+            image: 'semaphoreci/android:34-flutter'
   - name: Run UI tests
     task:
       prologue:
@@ -66,6 +90,13 @@ blocks:
         - name: Delete item
           commands:
             - flutter test integration_test/delete_existing_item_test.dart
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu2004
+        containers:
+          - name: main
+            image: 'semaphoreci/android:34-flutter'
     run:
       when: 'change_in(''/lib'', {default_branch: ''main'', pipeline_file: ''ignore''})'
   - name: Build artifact
@@ -78,5 +109,12 @@ blocks:
       jobs:
         - name: Generate IPA
           commands:
-            - flutter build ios --no-codesign
-            - artifact push job build/ios/iphoneos/Runner.app
+            - flutter build apk --release
+after_pipeline:
+  task:
+    jobs:
+      - name: 'Job #1'
+        commands: []
+promotions:
+  - name: Promotion 1
+    pipeline_file: pipeline_2.yml
